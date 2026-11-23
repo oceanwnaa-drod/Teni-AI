@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teni AI</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 70'%3E%3Cellipse cx='24' cy='62' rx='10' ry='7' fill='%238fcf7a'/%3E%3Cellipse cx='60' cy='62' rx='10' ry='7' fill='%238fcf7a'/%3E%3Cpath d='M4 58Q4 12 42 12Q80 12 80 58Z' fill='%23e8a54b' stroke='%239a5a1c' stroke-width='4'/%3E%3Cpath d='M26 28H58L66 44L42 54L18 44Z' fill='%23ffd98f' stroke='%239a5a1c' stroke-width='3'/%3E%3Ccircle cx='85' cy='42' r='13' fill='%238fcf7a' stroke='%233f8f3a' stroke-width='3'/%3E%3C/svg%3E">
+<style>
+:root{--bg1:#f4fbe9;--bg2:#e3f5cf;--card:#ffffff;--tx:#1f3b2a;--mute:#6b8473;--g:#4caf3f;--gd:#2f7d32;--line:#dcebd2;--soft:#f1f8ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#12201a;--bg2:#183024;--card:#1c2b23;--tx:#e6f3e6;--mute:#9db8a5;--g:#5cc24d;--gd:#8fdc83;--line:#2c4436;--soft:#223529}}
+:root[data-theme="dark"]{--bg1:#12201a;--bg2:#183024;--card:#1c2b23;--tx:#e6f3e6;--mute:#9db8a5;--g:#5cc24d;--gd:#8fdc83;--line:#2c4436;--soft:#223529}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Nunito","Segoe UI",system-ui,sans-serif;color:var(--tx);min-height:100vh;overflow-x:hidden;background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.95),transparent 62%),linear-gradient(180deg,#a9e08f 0%,#d5f2c3 20%,#f8fdf4 42%,#f8fdf4 58%,#cfeeb9 80%,#8fd478 100%);background-attachment:fixed}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 5vw;gap:12px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:26px;color:var(--gd)}
+.logo span{font-size:34px}
+nav{display:flex;gap:22px;font-weight:700}
+nav a{color:var(--gd);text-decoration:none;padding:6px 2px}
+nav a.on{border-bottom:3px solid var(--g)}
+main{display:grid;grid-template-columns:1.1fr 1fr;gap:32px;padding:10px 5vw 40px;align-items:center;max-width:1280px;margin:auto}
+.pill{display:inline-block;background:var(--soft);border:1px solid var(--line);padding:8px 16px;border-radius:99px;font-weight:700;color:var(--gd);font-size:14px}
+h1{font-size:clamp(28px,4.2vw,50px);line-height:1.15;margin:18px 0 12px;color:var(--gd)}
+.lead{color:var(--mute);font-size:17px;line-height:1.6;max-width:480px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:8px 16px;font-size:14px;font-weight:700}
+.mascot{display:flex;align-items:flex-end;gap:14px;margin-top:26px}
+.frog{font-size:96px;line-height:1;filter:drop-shadow(0 6px 6px rgba(0,0,0,.12))}
+.bubble{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:16px 24px;font-weight:700;font-size:18px;line-height:1.5;text-align:center;color:var(--gd);max-width:320px;position:relative;margin-bottom:44px;box-shadow:0 8px 22px rgba(80,150,70,.18);animation:bbl 4s ease-in-out infinite}.bubble::before{content:"";position:absolute;left:-9px;bottom:24px;width:18px;height:18px;background:var(--card);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg);border-radius:0 0 0 6px}@keyframes bbl{50%{transform:translateY(-4px)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:0 14px 40px rgba(60,120,50,.15);padding:18px;max-width:480px;width:100%;justify-self:center}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--soft);padding:5px;border-radius:16px}
+.tab{border:0;background:transparent;color:var(--mute);font:700 14px inherit;font-family:inherit;padding:10px 4px;border-radius:12px;cursor:pointer}
+.tab.on{background:var(--card);color:var(--gd);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.body{padding:18px 8px 8px}
+h2{margin:0 0 4px;font-size:21px;text-align:center}
+.sub{margin:0 0 16px;text-align:center;color:var(--mute);font-size:14px}
+input{width:100%;padding:13px 16px;margin-bottom:11px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--tx);font:inherit;outline:none}
+input:focus{border-color:var(--g)}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;background:var(--g);color:#fff;font:800 16px inherit;font-family:inherit;cursor:pointer}
+.btn:hover{filter:brightness(.95)}
+.btn.alt{background:var(--soft);color:var(--gd);border:1px solid var(--line)}
+.seg{display:flex;gap:6px;margin-bottom:14px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--soft);color:var(--mute);border-radius:12px;padding:9px;font:700 13px inherit;font-family:inherit;cursor:pointer}
+.seg button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.note{font-size:13px;color:var(--mute);background:var(--soft);border-radius:12px;padding:10px 12px;margin:0 0 14px;line-height:1.5}
+.err{color:#d34;font-size:13px;margin:-4px 0 10px;min-height:0}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.role{border:2px solid var(--line);background:var(--soft);border-radius:18px;padding:18px 8px;text-align:center;font:800 15px inherit;font-family:inherit;color:var(--tx);cursor:pointer}
+.role:hover,.role.on{border-color:var(--g)}
+.role i{display:block;font-style:normal;font-size:34px;margin-bottom:6px}
+.code{font:800 26px monospace;letter-spacing:4px;text-align:center;background:var(--soft);border:2px dashed var(--g);border-radius:14px;padding:12px;margin:10px 0;color:var(--gd)}
+.steps{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.steps b{width:34px;height:6px;border-radius:9px;background:var(--line)}
+.steps b.on{background:var(--g)}
+.link{background:none;border:0;color:var(--gd);font:700 13px inherit;font-family:inherit;cursor:pointer;text-decoration:underline;display:block;margin:10px auto 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;margin-bottom:6px;font-size:13px;background:var(--soft);word-break:break-all}.row button{border:0;border-radius:8px;padding:5px 9px;font:700 12px inherit;font-family:inherit;cursor:pointer;background:var(--g);color:#fff;margin-left:4px}.row button.no{background:#d65}.h3{font-weight:800;font-size:14px;margin:12px 0 6px}
+.card{background:color-mix(in srgb,var(--card) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+header,main{position:relative;z-index:1}main>*{min-width:0}
+.hill{position:fixed;bottom:-9vh;left:-10vw;width:70vw;height:26vh;border-radius:50% 50% 0 0;background:#7fcb69;opacity:.5;z-index:0;pointer-events:none}
+.hill.b{left:auto;right:-12vw;width:75vw;height:21vh;background:#5fb84e;opacity:.45}
+.leaf{position:fixed;top:-40px;width:30px;height:30px;border-radius:0 100% 0 100%;background:#5fb84e;opacity:.6;z-index:0;pointer-events:none;animation:fall 16s linear infinite}
+@keyframes fall{0%{transform:translate(0,-5vh) rotate(0)}50%{transform:translate(40px,55vh) rotate(180deg)}100%{transform:translate(-20px,110vh) rotate(360deg)}}
+.frog{animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.wave{transform-box:fill-box;transform-origin:50% 100%;animation:wv 1.4s ease-in-out infinite}
+@keyframes wv{50%{transform:rotate(-18deg)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.07),transparent 62%),linear-gradient(180deg,#1f4a33 0%,#17291f 30%,#141f19 50%,#17291f 70%,#1f4a33 100%)}}
+:root[data-theme="dark"] body{background:linear-gradient(180deg,#1f4a33,#141f19 50%,#1f4a33)}
+.cloud{position:fixed;width:130px;height:38px;background:#fff;border-radius:40px;opacity:.9;z-index:0;pointer-events:none;box-shadow:0 8px 16px rgba(120,170,110,.18);animation:drift 7s ease-in-out infinite}
+.cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}
+.cloud::before{width:58px;height:58px;top:-28px;left:18px}.cloud::after{width:44px;height:44px;top:-20px;left:68px}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(16px,-12px)}}
+.fl{position:fixed;z-index:0;pointer-events:none;transform-origin:50% 100%;animation:sway 3.5s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.st{transform-box:fill-box;transform-origin:50% 100%;animation:wv 2s ease-in-out infinite}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cloud{opacity:.15}}
+.ov{position:fixed;inset:0;background:rgba(20,50,30,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;backdrop-filter:blur(3px)}.ov.show{display:flex}
+.pn{position:relative;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px 20px;width:100%;max-width:480px;max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.x{position:absolute;top:12px;right:14px;border:0;background:var(--soft);color:var(--tx);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px}
+select,textarea{width:100%;padding:13px 16px;margin-bottom:11px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--tx);font:inherit;outline:none;resize:vertical}
+.fq{border:1px solid var(--line);border-radius:12px;background:var(--soft);margin-bottom:8px;padding:10px 14px}.fq summary{font-weight:800;cursor:pointer;font-size:14px}.fq p{margin:8px 0 2px;font-size:13px;line-height:1.55;color:var(--mute)}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;border:0;border-radius:99px;padding:12px 18px;background:var(--g);color:#fff;font:800 14px inherit;font-family:inherit;box-shadow:0 8px 20px rgba(40,120,40,.35);cursor:pointer}
+nav a{cursor:pointer}
+@media (max-width:860px){main{grid-template-columns:1fr}nav{display:none}.mascot{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="face" viewBox="0 0 100 70"><ellipse cx="24" cy="62" rx="10" ry="7" fill="#8fcf7a" stroke="#3f8f3a" stroke-width="2"/><ellipse cx="60" cy="62" rx="10" ry="7" fill="#8fcf7a" stroke="#3f8f3a" stroke-width="2"/><path d="M4 58Q4 12 42 12Q80 12 80 58Z" fill="#e8a54b" stroke="#9a5a1c" stroke-width="3" stroke-linejoin="round"/><path d="M26 28H58L66 44L42 54L18 44Z" fill="#ffd98f" stroke="#9a5a1c" stroke-width="2.5" stroke-linejoin="round"/><circle cx="85" cy="42" r="13" fill="#8fcf7a" stroke="#3f8f3a" stroke-width="2.5"/><circle cx="89" cy="38" r="2.6" fill="#2b4a2b"/><path d="M82 46q5 5 10 0" fill="none" stroke="#2b4a2b" stroke-width="2" stroke-linecap="round"/></symbol><symbol id="fl" viewBox="0 0 30 40"><path d="M15 18V40" stroke="#4e9e45" stroke-width="2.5"/><g style="fill:var(--p,#fff)" stroke="#f0b6c8" stroke-width="1"><circle cx="15" cy="6" r="5.5"/><circle cx="22.6" cy="11.5" r="5.5"/><circle cx="19.7" cy="20" r="5.5"/><circle cx="10.3" cy="20" r="5.5"/><circle cx="7.4" cy="11.5" r="5.5"/></g><circle cx="15" cy="14" r="4" fill="#f6c945"/></symbol></svg>
+<div class="hill"></div><div class="hill b"></div>
+<i class="leaf" style="left:6%"></i><i class="leaf" style="left:22%;animation-delay:-5s"></i><i class="leaf" style="left:45%;animation-delay:-9s"></i><i class="leaf" style="left:68%;animation-delay:-3s"></i><i class="leaf" style="left:88%;animation-delay:-12s"></i><i class="leaf" style="left:14%;animation-delay:-7s;animation-duration:19s"></i><i class="leaf" style="left:55%;animation-delay:-1s;animation-duration:13s"></i><i class="leaf" style="left:78%;animation-delay:-10s;animation-duration:18s"></i><i class="leaf" style="left:3%;animation-delay:-4s;animation-duration:15s"></i><i class="leaf" style="left:33%;animation-delay:-11s;animation-duration:20s"></i><i class="leaf" style="left:62%;animation-delay:-6s;animation-duration:17s"></i><i class="leaf" style="left:94%;animation-delay:-8s;animation-duration:14s"></i><i class="leaf" style="left:40%;animation-delay:-2s;animation-duration:21s"></i>
+<i class="cloud" style="top:7%;left:6%"></i><i class="cloud" style="top:22%;left:70%;width:100px;animation-duration:9s;animation-delay:-3s"></i><i class="cloud" style="top:3%;left:40%;width:150px;animation-duration:8s;animation-delay:-5s"></i><i class="cloud" style="top:44%;left:3%;width:110px;animation-duration:10s;animation-delay:-2s"></i>
+<svg class="fl" style="left:4%;bottom:3vh" width="36" height="48"><use href="#fl"/></svg><svg class="fl" style="left:13%;bottom:7vh;--p:#ffd6e0;animation-delay:-1s" width="30" height="40"><use href="#fl"/></svg><svg class="fl" style="left:27%;bottom:2vh;--p:#fff3b0;animation-delay:-2s" width="34" height="46"><use href="#fl"/></svg><svg class="fl" style="left:48%;bottom:4vh;animation-delay:-3s" width="28" height="38"><use href="#fl"/></svg><svg class="fl" style="left:66%;bottom:3vh;--p:#ffd6e0;animation-delay:-1.5s" width="36" height="48"><use href="#fl"/></svg><svg class="fl" style="left:80%;bottom:8vh;--p:#e3d4ff;animation-delay:-2.5s" width="30" height="40"><use href="#fl"/></svg><svg class="fl" style="left:92%;bottom:2vh;--p:#fff3b0;animation-delay:-0.5s" width="34" height="46"><use href="#fl"/></svg>
+<header>
+  <div class="logo"><svg width="46" height="32" viewBox="0 0 100 70" aria-hidden="true"><use href="#face"/></svg>Teni AI</div>
+  <nav><a class="on" href="#" onclick="closeHelp();return false">🏠 Trang chủ</a><a href="#" onclick="openHelp();return false">❔ Hỗ trợ</a></nav>
+</header>
+<main>
+  <section>
+    <div class="pill">✨ Sẵn sàng bắt đầu cùng Teni AI?</div>
+    <h1>Chọn cách dùng<br>phù hợp với bạn!</h1>
+    <p class="lead">Dùng thử ngay với tư cách khách, tạo tài khoản riêng cho mình, hoặc lập không gian học tập chung cho cả lớp.</p>
+    <div class="chips"><span class="chip">⚡ Nhanh chóng và dễ dàng</span><span class="chip">🛡️ An toàn và bảo mật</span><span class="chip" style="cursor:pointer" onclick="openHelp()">🎧 Hỗ trợ 24/7</span></div>
+    <div class="mascot"><svg class="frog" viewBox="0 0 210 150" width="250" height="178" aria-hidden="true"><path d="M24 112l-16 4 16 8z" fill="#8fcf7a" stroke="#3f8f3a" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="58" cy="128" rx="20" ry="15" fill="#8fcf7a" stroke="#3f8f3a" stroke-width="3"/><ellipse cx="132" cy="128" rx="20" ry="15" fill="#8fcf7a" stroke="#3f8f3a" stroke-width="3"/><path d="M28 120H172Q172 134 150 134H50Q28 134 28 120z" fill="#f3e2a9" stroke="#c9a860" stroke-width="3" stroke-linejoin="round"/><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c36a"/><stop offset="1" stop-color="#dd8f3e"/></linearGradient></defs><path d="M28 120Q28 36 100 36Q172 36 172 120Z" fill="url(#sg)" stroke="#9a5a1c" stroke-width="3.5" stroke-linejoin="round"/><path d="M80 60L120 60L134 88L100 110L66 88Z" fill="#ffd98f" stroke="#9a5a1c" stroke-width="3" stroke-linejoin="round"/><path d="M80 60L66 42M120 60L134 42M134 88L164 96M66 88L36 96M100 110V120" stroke="#9a5a1c" stroke-width="3" stroke-linecap="round"/><ellipse cx="64" cy="64" rx="12" ry="6" fill="#fff" opacity=".4" transform="rotate(-35 64 64)"/><circle cx="178" cy="92" r="25" fill="#8fcf7a" stroke="#3f8f3a" stroke-width="3.5"/><circle cx="169" cy="86" r="5" fill="#2b4a2b"/><circle cx="187" cy="86" r="5" fill="#2b4a2b"/><circle cx="170.5" cy="84.5" r="1.6" fill="#fff"/><circle cx="188.5" cy="84.5" r="1.6" fill="#fff"/><circle cx="162" cy="98" r="5" fill="#ff9fa8" opacity=".75"/><circle cx="194" cy="98" r="5" fill="#ff9fa8" opacity=".75"/><path d="M171 99q7 8 14 0" fill="none" stroke="#2b4a2b" stroke-width="3" stroke-linecap="round"/></svg><div class="bubble">Cùng Teni AI kiến tạo tương lai học tập tốt hơn nhé! 💚</div></div>
+  </section>
+  <section class="card">
+    <div class="tabs" id="tabs"></div>
+    <div class="body" id="view"></div>
+  </section>
+</main>
+<button class="fab" onclick="openHelp()">🎧 Hỗ trợ</button>
+<div id="help" class="ov" onclick="if(event.target===this)closeHelp()"><div class="pn"><button class="x" onclick="closeHelp()" aria-label="Đóng">✕</button><h2>🎧 Trung tâm hỗ trợ</h2><p class="sub">Chúng mình luôn sẵn sàng giúp bạn</p><div class="seg" id="ht"></div><div id="hb"></div></div></div>
+<script>
+var S={tab:'guest',pMode:'login',lMode:'create',step:1,role:null,space:null,spaceName:'',email:null,tok:'',mem:null,msg:''};
+var $=function(i){return document.getElementById(i)};
+var TABS=[['guest','👤 Khách'],['personal','🔒 Cá nhân'],['space','🏫 Học tập']];
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function val(id){var e=$(id);return e?e.value.trim():''}
+function validEmail(e){return /^[^\s@]+@gmail\.com$/i.test(e)}
+function setTab(t){S.tab=t;S.step=1;S.msg='';render()}
+function err(m){S.msg=m;render()}
+function enterApp(ses){ses.tok=S.tok;try{localStorage.setItem('teni_session',JSON.stringify(ses))}catch(x){}location.href=(ses.role==='teacher'||ses.role==='manager')?'teacher.html':'app.html'}
+function done(icon,title,text){
+  $('view').innerHTML='<div style="text-align:center;padding:10px 0"><div style="font-size:54px">'+icon+'</div><h2>'+title+'</h2><p class="sub">'+text+'</p><button class="btn alt" onclick="setTab(\'guest\')">Quay lại</button></div>';
+}
+function call(action,body){
+  var o=Object.assign({action:action},body||{});
+  return fetch('/api/app',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.tok},body:JSON.stringify(o)}).then(function(r){
+    var ct=r.headers.get('content-type')||'';
+    if(ct.indexOf('json')<0){var e=new Error('Không kết nối được máy chủ. Hãy thử lại sau.');e.api=true;throw e}
+    return r.json().then(function(d){if(!r.ok){var e=new Error(d.error||'Lỗi máy chủ');e.api=true;e.status=r.status;throw e}return d});
+  });
+}
+function fail(e){err(e&&e.api?e.message:'Không kết nối được máy chủ. Hãy thử lại sau.')}
+function render(){
+  $('tabs').innerHTML=TABS.map(function(t){return '<button class="tab '+(S.tab===t[0]?'on':'')+'" onclick="setTab(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
+  var v=$('view');
+  if(S.tab==='guest') v.innerHTML=
+    '<h2>Dùng với tư cách khách</h2><p class="sub">Không cần đăng ký hay đăng nhập.</p>'+
+    '<p class="note">Bạn có thể dùng Teni AI ngay. Lịch sử trò chuyện sẽ không được lưu khi bạn đóng trang.</p>'+
+    '<button class="btn" onclick="done(\'🎉\',\'Chào mừng khách!\',\'Bạn đang dùng Teni AI ở chế độ khách.\')">Vào dùng ngay →</button>';
+  else if(S.tab==='personal') v.innerHTML=
+    '<h2>Tài khoản cá nhân</h2><p class="sub">Chỉ dành cho một mình bạn.</p>'+
+    '<div class="seg"><button class="'+(S.pMode==='login'?'on':'')+'" onclick="S.pMode=\'login\';S.msg=\'\';render()">Đăng nhập</button><button class="'+(S.pMode==='reg'?'on':'')+'" onclick="S.pMode=\'reg\';S.msg=\'\';render()">Đăng ký</button></div>'+
+    (S.pMode==='reg'?'<input id="pn" placeholder="Họ và tên">':'')+
+    '<input id="pe" type="email" placeholder="Gmail của bạn (@gmail.com)">'+
+    '<div class="err">'+esc(S.msg)+'</div>'+
+    '<button class="btn" onclick="personal()">'+(S.pMode==='reg'?'Đăng ký ngay':'Đăng nhập')+' →</button>';
+  else spaceView(v);
+}
+function personal(){
+  var e=val('pe').toLowerCase(),n=val('pn'),reg=S.pMode==='reg';
+  if(!validEmail(e)) return err('Vui lòng nhập địa chỉ Gmail hợp lệ (@gmail.com).');
+  if(reg&&!n) return err('Vui lòng nhập họ và tên.');
+  askOtp(e,function(tok){
+    S.tok=tok;
+    (reg?call('account.set',{name:n}):call('account.get')).then(function(d){
+      if(!d.name){S.pMode='reg';return err('Gmail này chưa đăng ký. Hãy chuyển sang tab Đăng ký.')}
+      enterApp({email:e,name:d.name,role:'personal'});
+    }).catch(fail);
+  });
+}
+function spaceView(v){
+  var dots='<div class="steps"><b class="on"></b><b class="'+(S.step>=2?'on':'')+'"></b></div>';
+  if(S.step===1){
+    v.innerHTML=dots+'<h2>Không gian học tập</h2><p class="sub">Giống một máy chủ riêng cho lớp của bạn.</p>'+
+    '<div class="seg"><button class="'+(S.lMode==='create'?'on':'')+'" onclick="S.lMode=\'create\';S.msg=\'\';render()">Tạo không gian mới</button><button class="'+(S.lMode==='join'?'on':'')+'" onclick="S.lMode=\'join\';S.msg=\'\';render()">Đăng nhập vào</button></div>'+
+    (S.lMode==='create'
+      ?'<p class="note">Gmail người quản lý đăng ký trước để tạo không gian. Sau đó chia sẻ mã mời cho các Gmail khác vào.</p><input id="sn" placeholder="Tên không gian (vd: Lớp 10A1)"><input id="se" type="email" placeholder="Gmail người quản lý (@gmail.com)">'
+      :'<p class="note">Nhập mã không gian do người quản lý cung cấp, rồi dùng Gmail của bạn để vào.</p><input id="sc" placeholder="Mã không gian (vd: TENI-AB12)" style="text-transform:uppercase"><input id="se" type="email" placeholder="Gmail của bạn (@gmail.com)">')+
+    '<div class="err">'+esc(S.msg)+'</div><button class="btn" onclick="spaceNext()">Tiếp tục →</button>';
+  }else if(S.step===3){manage(v);
+  }else{
+    v.innerHTML=dots+'<h2>Bạn là ai?</h2><p class="sub">Không gian: <b>'+esc(S.spaceName)+'</b> · '+esc(S.email)+'</p>'+
+    '<div class="roles"><button class="role '+(S.role==='gv'?'on':'')+'" onclick="S.role=\'gv\';render()"><i>🧑‍🏫</i>Giáo viên</button><button class="role '+(S.role==='hs'?'on':'')+'" onclick="S.role=\'hs\';render()"><i>🎒</i>Học sinh</button></div>'+
+    '<p class="note">Chọn Giáo viên thì người quản lý cần xác nhận trước khi bạn được vào.</p>'+
+    '<div class="err">'+esc(S.msg)+'</div><button class="btn" onclick="finish()">Vào học →</button><button class="link" onclick="S.step=1;render()">← Quay lại</button>';
+  }
+}
+function spaceNext(){
+  var e=val('se').toLowerCase(),n=val('sn'),c=val('sc').toUpperCase();
+  if(!validEmail(e)) return err('Vui lòng dùng địa chỉ Gmail hợp lệ.');
+  if(S.lMode==='create'&&!n) return err('Hãy đặt tên cho không gian.');
+  if(S.lMode==='join'&&!/^TENI-[A-Z0-9]{4}$/.test(c)) return err('Mã không gian có dạng TENI-XXXX.');
+  askOtp(e,function(tok){S.tok=tok;spaceGo(e,n,c)});
+}
+function spaceGo(e,n,c){
+  S.email=e;S.msg='';
+  if(S.lMode==='create'){
+    call('space.create',{name:n}).then(function(r){S.space=r.code;S.spaceName=r.name;S.role='ql';S.mem=null;S.step=3;render();loadManage()}).catch(fail);
+    return;
+  }
+  call('space.join',{code:c}).then(function(r){
+    S.space=r.code;S.spaceName=r.name;
+    if(r.status==='pending') return done('⏳','Đã gửi yêu cầu','Hãy chờ người quản lý duyệt rồi đăng nhập lại.');
+    if(r.role==='ql'){S.role='ql';S.mem=null;S.step=3;render();return loadManage()}
+    if(r.role==='gv') return enterApp({email:e,name:e.split('@')[0],role:'teacher',space:r.name,code:r.code});
+    if(r.role==='hs') return enterApp({email:e,name:e.split('@')[0],role:'student',space:r.name,code:r.code});
+    if(r.want==='gv') return done('⏳','Đang chờ xác nhận','Người quản lý cần xác nhận bạn là giáo viên. Hãy đăng nhập lại sau khi được xác nhận.');
+    S.role=null;S.step=2;render();
+  }).catch(fail);
+}
+function finish(){
+  if(!S.role) return err('Hãy chọn Giáo viên hoặc Học sinh.');
+  call('space.setrole',{code:S.space,role:S.role}).then(function(r){
+    if(r.role==='hs') return enterApp({email:S.email,name:S.email.split('@')[0],role:'student',space:S.spaceName,code:S.space});
+    S.step=1;done('⏳','Đã gửi yêu cầu','Người quản lý sẽ xác nhận bạn là giáo viên. Hãy đăng nhập lại sau khi được xác nhận.');
+  }).catch(fail);
+}
+function loadManage(){call('space.members',{code:S.space}).then(function(r){S.mem=r.members;if(S.step===3&&S.tab==='space')render()}).catch(fail)}
+function manage(v){
+  var head='<div class="steps"><b class="on"></b><b class="on"></b></div><h2>Quản lý: '+esc(S.spaceName)+'</h2><p class="sub">Bạn là Quản lý của không gian này.</p>';
+  if(!S.mem){v.innerHTML=head+'<p class="sub">Đang tải...</p>';return}
+  var act=S.mem.filter(function(m){return m.status==='active'}),pend=S.mem.filter(function(m){return m.status==='pending'}),inv=S.mem.filter(function(m){return m.status==='invited'}),tq=act.filter(function(m){return !m.role&&m.want_role==='gv'});
+  function row(e,b){return '<div class="row"><span>'+esc(e)+'</span><span>'+b+'</span></div>'}
+  function btns(e,k){return '<button onclick="decide(\''+e+'\',true,\''+k+'\')">Duyệt</button><button class="no" onclick="decide(\''+e+'\',false,\''+k+'\')">Từ chối</button>'}
+  v.innerHTML=head+
+  '<div class="code" style="user-select:all">'+S.space+'</div><button class="btn alt" style="margin-bottom:6px" onclick="copyCode(this)">📋 Sao chép mã</button>'+
+  '<div class="h3">Mời thành viên bằng Gmail</div><div style="display:flex;gap:6px"><input id="ie" type="email" placeholder="gmail@gmail.com" style="margin:0"><button class="btn" style="width:auto;padding:0 18px" onclick="invite()">Mời</button></div><div class="err">'+esc(S.msg)+'</div>'+
+  (inv.length?'<div class="h3">Đã mời (chờ vào)</div>'+inv.map(function(m){return row(m.email,'⏳')}).join(''):'')+
+  '<div class="h3">Yêu cầu chờ duyệt ('+pend.length+')</div>'+(pend.length?pend.map(function(m){return row(m.email,btns(m.email,'join'))}).join(''):'<p class="sub" style="text-align:left">Chưa có yêu cầu nào.</p>')+
+  (tq.length?'<div class="h3">Xin làm giáo viên ('+tq.length+')</div>'+tq.map(function(m){return row(m.email,btns(m.email,'teacher'))}).join(''):'')+
+  '<div class="h3">Thành viên ('+act.length+')</div>'+act.map(function(m){var r=m.role;return row(m.email,(r==='ql'?'👑 Quản lý':r==='gv'?'Giáo viên':r==='hs'?'Học sinh':'Chưa chọn vai trò'))}).join('')+
+  '<button class="btn" style="margin-top:14px" onclick="enter()">Vào học →</button>';
+}
+var FAQ=[['Dùng chế độ khách có cần đăng ký không?','Không cần. Bạn chỉ cần bấm “Vào dùng ngay” ở tab Khách. Lịch sử sẽ không được lưu khi bạn đóng trang.'],['Tài khoản cá nhân khác gì không gian học tập?','Tài khoản cá nhân chỉ dành cho một mình bạn. Không gian học tập là nơi chung cho cả lớp, do người quản lý tạo và quản lý thành viên.'],['Làm sao để tham gia không gian học tập?','Vào tab Học tập, chọn “Đăng nhập vào”, nhập mã không gian cùng Gmail của bạn. Nếu chưa được mời, bạn sẽ chờ người quản lý duyệt rồi đăng nhập lại.'],['Mã không gian lấy ở đâu?','Người quản lý sẽ thấy mã (dạng TENI-XXXX) sau khi tạo không gian, có nút sao chép để gửi cho mọi người.'],['Mình là giáo viên hay học sinh thì chọn ở đâu?','Sau khi vào được không gian, bạn sẽ thấy màn “Bạn là ai?” để chọn Giáo viên hoặc Học sinh. Người quản lý thì mặc định có vai trò Quản lý.'],['Mình không nhận được mã xác nhận thì sao?','Hãy kiểm tra cả thư rác, đợi 30 giây rồi bấm “Gửi lại mã”. Nếu vẫn không có, hãy gửi yêu cầu hỗ trợ ở tab “Gửi yêu cầu”.'],['Không gian học tập có dùng chung giữa các máy được không?','Được. Không gian, thành viên, bài học và thông báo được lưu trên máy chủ nên mọi người dùng chung từ nhiều máy khác nhau.']];
+var H={tab:'faq',q:'',done:null};
+function openHelp(){H.done=null;$('help').classList.add('show');helpRender()}
+function closeHelp(){$('help').classList.remove('show')}
+function helpTab(t){H.tab=t;H.done=null;helpRender()}
+function helpRender(){
+  $('ht').innerHTML='<button class="'+(H.tab==='faq'?'on':'')+'" onclick="helpTab(\'faq\')">Câu hỏi thường gặp</button><button class="'+(H.tab==='send'?'on':'')+'" onclick="helpTab(\'send\')">Gửi yêu cầu</button>';
+  var b=$('hb');
+  if(H.tab==='faq'){b.innerHTML='<input id="hq" placeholder="🔍 Tìm câu hỏi..." value="'+esc(H.q)+'" oninput="H.q=this.value;faqList()"><div id="faql"></div>';faqList()}
+  else if(H.done){b.innerHTML='<div style="text-align:center"><div style="font-size:50px">📨</div><h2>Đã ghi nhận yêu cầu</h2><p class="sub">Mã yêu cầu của bạn: <b>'+H.done+'</b></p><p class="note">Đây là bản demo nên yêu cầu chỉ lưu tạm trong trang, chưa được gửi đến ai.</p><button class="btn alt" onclick="helpTab(\'faq\')">Xem câu hỏi thường gặp</button></div>'}
+  else b.innerHTML='<input id="hn" placeholder="Họ và tên"><input id="he" type="email" placeholder="Email liên hệ"><select id="hs"><option>Lỗi đăng nhập / đăng ký</option><option>Không gian học tập</option><option>Góp ý tính năng</option><option>Vấn đề khác</option></select><textarea id="hm" rows="4" placeholder="Mô tả vấn đề của bạn..."></textarea><div class="err" id="herr"></div><button class="btn" onclick="sendHelp()">Gửi yêu cầu →</button>';
+}
+function faqList(){
+  var q=H.q.toLowerCase(),r=FAQ.filter(function(f){return (f[0]+' '+f[1]).toLowerCase().indexOf(q)>-1});
+  $('faql').innerHTML=r.length?r.map(function(f){return '<details class="fq"><summary>'+f[0]+'</summary><p>'+f[1]+'</p></details>'}).join(''):'<p class="sub">Không tìm thấy câu trả lời. Hãy thử gửi yêu cầu nhé.</p>';
+}
+function sendHelp(){
+  var n=val('hn'),e=val('he'),m=val('hm');
+  if(!n||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)||m.length<5){$('herr').textContent='Vui lòng nhập tên, email hợp lệ và nội dung (ít nhất 5 ký tự).';return}
+  H.done='HT-'+Math.random().toString(36).slice(2,7).toUpperCase();helpRender();
+}
+document.addEventListener('keydown',function(ev){if(ev.key==='Escape')closeHelp()});
+var OT={email:'',token:'',ok:null,cd:0,t:null};
+function askOtp(email,ok){OT.email=email;OT.ok=ok;sendCode()}
+function api(path,body){
+  return fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
+    var ct=r.headers.get('content-type')||'';
+    if(ct.indexOf('json')<0){var e=new Error('noapi');e.noapi=true;throw e}
+    return r.json().then(function(d){if(!r.ok){var e=new Error(d.error||'Lỗi máy chủ');e.api=true;throw e}return d});
+  });
+}
+function sendCode(){
+  $('view').innerHTML='<div style="text-align:center;padding:30px 0"><div style="font-size:42px">📧</div><p class="sub">Đang gửi mã tới '+esc(OT.email)+'...</p></div>';
+  api('/api/send-code',{email:OT.email}).then(function(d){OT.token=d.token;otpView()}).catch(function(e){
+    S.msg=e.api?e.message:'Không kết nối được máy chủ gửi mail. Hãy thử lại sau.';render();
+  });
+}
+function otpView(){
+  $('view').innerHTML='<h2>Nhập mã xác nhận</h2><p class="sub">Mã 6 số đã được gửi tới<br><b>'+esc(OT.email)+'</b></p>'+
+   '<p class="note">Hãy kiểm tra hộp thư đến (và cả thư rác). Mã có hiệu lực 10 phút.</p>'+
+   '<input id="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••" style="text-align:center;font-size:22px;letter-spacing:8px"><div class="err" id="oerr"></div>'+
+   '<button class="btn" id="ob" onclick="checkCode()">Xác nhận →</button><button class="link" id="rs" onclick="resend()"></button><button class="link" onclick="clearInterval(OT.t);render()">← Đổi Gmail</button>';
+  OT.cd=30;clearInterval(OT.t);OT.t=setInterval(function(){OT.cd--;cdTick();if(OT.cd<=0)clearInterval(OT.t)},1000);cdTick();
+  $('otp').focus();
+  $('otp').addEventListener('keydown',function(ev){if(ev.key==='Enter')checkCode()});
+}
+function cdTick(){var b=$('rs');if(!b)return;b.disabled=OT.cd>0;b.textContent=OT.cd>0?'Gửi lại mã sau '+OT.cd+'s':'Gửi lại mã'}
+function resend(){if(OT.cd>0)return;sendCode()}
+function checkCode(){
+  var c=val('otp').replace(/\D/g,'');
+  if(c.length!==6){$('oerr').textContent='Nhập đủ 6 số.';return}
+  function good(d){clearInterval(OT.t);OT.ok(d.session)}
+  $('ob').disabled=true;
+  api('/api/verify-code',{email:OT.email,code:c,token:OT.token}).then(good).catch(function(e){
+    $('ob').disabled=false;$('oerr').textContent=e.api?e.message:'Lỗi mạng, hãy thử lại.';
+  });
+}
+function copyCode(b){
+  var t=S.space;
+  function ok(){b.textContent='✅ Đã sao chép'}
+  function fb(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){b.textContent='Nhấn giữ vào mã để chọn rồi sao chép'}a.remove()}
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(x){fb()}
+}
+function invite(){
+  var e=val('ie').toLowerCase();
+  if(!validEmail(e)) return err('Vui lòng nhập Gmail hợp lệ.');
+  call('space.invite',{code:S.space,email:e}).then(function(){S.msg='';loadManage()}).catch(fail);
+}
+function decide(e,ok,kind){
+  call('space.decide',{code:S.space,email:e,ok:ok,kind:kind}).then(function(){S.msg='';loadManage()}).catch(fail);
+}
+function enter(){enterApp({email:S.email,name:S.email.split('@')[0],role:'manager',space:S.spaceName,code:S.space})}
+render();
+</script>
+</body>
+</html>
