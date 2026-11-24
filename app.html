@@ -224,6 +224,24 @@ textarea.nt{width:100%;min-height:210px;border:2px solid #e3e8cd;background:#fff
 .exv{position:fixed;right:14px;bottom:14px;z-index:3;background:#fff;border:2px solid #dbe5c3;border-radius:16px;padding:6px;box-shadow:0 6px 18px rgba(0,0,0,.15);text-align:center}
 .exv video{display:block;width:120px;height:90px;border-radius:10px;background:#222;object-fit:cover;transform:scaleX(-1)}.exv small{display:block;font-weight:800;font-size:12px;margin-top:4px;color:#4f8a35;max-width:120px}
 .exfs{position:fixed;inset:0;z-index:5;background:rgba(240,248,225,.97);display:flex;align-items:center;justify-content:center;padding:20px}.exfs[hidden]{display:none}
+
+#akfab{position:fixed;right:18px;bottom:84px;z-index:60;border:0;border-radius:999px;padding:12px 18px;font:800 15px inherit;color:#fff;background:linear-gradient(180deg,var(--g1),var(--g2));box-shadow:0 8px 18px rgba(90,150,50,.4);cursor:pointer}
+#akp{position:fixed;right:18px;bottom:84px;z-index:70;width:min(380px,calc(100vw - 28px));height:min(520px,calc(100vh - 120px));background:#fffff7;border:2px solid #dcebd2;border-radius:22px;box-shadow:0 14px 36px rgba(60,90,40,.28);display:none;flex-direction:column;overflow:hidden}
+#akp.on{display:flex}
+#akp .ah{display:flex;align-items:center;gap:8px;padding:12px 14px;background:linear-gradient(180deg,var(--g1),var(--g2));color:#fff;font-weight:800}
+#akp .ah span{flex:1}
+#akp .ah button{border:0;background:rgba(255,255,255,.25);color:#fff;border-radius:50%;width:28px;height:28px;font-size:15px;cursor:pointer}
+#akm{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+#akm .b{max-width:88%;padding:9px 12px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+#akm .u{align-self:flex-end;background:#e3f3cf;border-bottom-right-radius:4px}
+#akm .a{align-self:flex-start;background:#fff;border:1.5px solid #e3e8cd;border-bottom-left-radius:4px}
+#akm .s{align-self:center;color:var(--mute);font-size:13px;text-align:center}
+#akf{display:flex;gap:8px;padding:10px;border-top:1.5px solid #e3e8cd;background:#fff}
+#akf textarea{flex:1;resize:none;border:2px solid #e3e8cd;border-radius:14px;padding:9px 12px;font:600 14.5px inherit;max-height:90px}
+#akf button{border:0;border-radius:14px;padding:0 16px;font-weight:800;color:#fff;background:linear-gradient(180deg,var(--g1),var(--g2));cursor:pointer}
+#akf button:disabled{opacity:.5}
+body:has(#exr) #akfab,body:has(#exr) #akp{display:none!important}
+@media(max-width:700px){#akfab{bottom:78px}#akp{bottom:78px;right:10px}}
 </style>
 </head>
 <body>
@@ -240,7 +258,7 @@ textarea.nt{width:100%;min-height:210px;border:2px solid #e3e8cd;background:#fff
     <header class="top">
       <div class="search">
         <svg class="ic" viewBox="0 0 26 26"><circle cx="11" cy="11" r="7.5"/><path d="M17 17l6 6"/></svg>
-        <input id="q" placeholder="Dễ dàng - Hiệu quả - Khoa học" autocomplete="off">
+        <input id="q" placeholder="Tìm môn học hoặc hỏi Teni bất cứ điều gì về học tập..." autocomplete="off">
         <span class="sp">✦</span>
         <div class="res" id="res"></div>
       </div>
@@ -300,7 +318,16 @@ var SUBJ=[
 ];
 var LES={};try{LES=JSON.parse(localStorage.getItem('teni_lessons')||'{}')||{}}catch(e){LES={}}
 function saveLes(){try{localStorage.setItem('teni_lessons',JSON.stringify(LES))}catch(e){}}
-function L(id){return Array.isArray(LES[id])?LES[id]:[]}
+var DEMO={toan:['Số tự nhiên và các phép tính','Phân số và số thập phân','Tỉ lệ thức, tỉ số phần trăm','Hình học: chu vi và diện tích','Phương trình bậc nhất một ẩn'],
+ van:['Đọc hiểu văn bản','Các biện pháp tu từ','Viết đoạn văn nghị luận','Văn tự sự: kể chuyện theo ngôi thứ nhất'],
+ anh:['Thì hiện tại đơn và hiện tại tiếp diễn','Từ vựng chủ đề gia đình, trường học','Câu điều kiện loại 1','Luyện nghe: hội thoại ngắn'],
+ ly:['Chuyển động và vận tốc','Lực và các loại lực','Áp suất chất lỏng','Điện trở và định luật Ôm'],
+ hoa:['Chất và sự biến đổi chất','Nguyên tử và bảng tuần hoàn','Axit, bazơ, muối','Phản ứng oxi hóa khử'],
+ sinh:['Tế bào là đơn vị cơ bản của sự sống','Quang hợp ở thực vật','Hệ tuần hoàn ở người','Di truyền cơ bản'],
+ su:['Các nền văn minh cổ đại','Thời kỳ Bắc thuộc và đấu tranh giành độc lập','Nhà Lý và Nhà Trần','Kháng chiến chống Mỹ'],
+ dia:['Trái Đất và bản đồ','Khí hậu và thời tiết','Địa hình Việt Nam','Dân cư và đô thị hóa']};
+function DEMOL(id){return (DEMO[id]||[]).map(function(t,i){return {id:'demo-'+id+'-'+i,t:t}})}
+function L(id){if(Array.isArray(LES[id])&&LES[id].length)return LES[id];return SERVER?[]:DEMOL(id)}
 function S(id){for(var i=0;i<SUBJ.length;i++)if(SUBJ[i].id===id)return SUBJ[i]}
 function pdone(id){var p=ST.prog[id];return p&&!Array.isArray(p)?p:{}}
 function nd(id){var p=pdone(id);return L(id).filter(function(l){return p[l.id]}).length}
@@ -414,7 +441,7 @@ function loadStuExams(){
 function vExam(){
   var h='<h2 class="t">Giám sát thi cử</h2><p class="sub">Bài kiểm tra do giáo viên giao sẽ xuất hiện tại đây.</p>';
   var empty=function(t,m){return h+'<div class="card" style="padding:34px;text-align:center;max-width:640px"><div style="width:150px;margin:0 auto 10px">'+ILL.shield+'</div><h3 style="margin:0 0 6px;font-size:22px">'+t+'</h3><p class="sub">'+m+'</p></div>'};
-  if(!SERVER)return empty('Chưa có bài kiểm tra','Bài kiểm tra do giáo viên giao có trong không gian học tập. Hãy đăng nhập bằng mã không gian của lớp.');
+  if(!SERVER)return h+'<div class="card" style="padding:34px;text-align:center;max-width:640px"><div style="width:150px;margin:0 auto 10px">'+ILL.shield+'</div><h3 style="margin:0 0 6px;font-size:22px">Cần đăng ký hoặc đăng nhập để làm bài kiểm tra</h3><p class="sub">'+(SES.role==='guest'?'Bạn đang dùng chế độ khách. ':'')+'Bài kiểm tra do giáo viên giao cho từng lớp, nên bạn cần tài khoản học sinh và vào lớp bằng mã lớp. Các phần Học tập, Thời khóa biểu, Thống kê vẫn dùng bình thường.</p><div class="rowc" style="justify-content:center;margin-top:14px"><button class="pbtn" data-act="logout">Đăng ký / Đăng nhập ›</button></div></div>';
   if(!EXS.loaded)return empty('Đang tải...','');
   if(!EXS.list.length)return empty('Chưa có bài kiểm tra nào','Khi giáo viên giao bài, bạn sẽ bắt đầu làm bài từ đây.');
   return h+EXS.list.map(function(x){
@@ -624,7 +651,7 @@ function vStats(){return '<h2 class="t">Thống kê</h2><p class="sub">Tiến đ
 function ringSvg(p,c){var r=38,L=2*Math.PI*r;return '<svg viewBox="0 0 92 92" width="100%" height="100%"><circle cx="46" cy="46" r="'+r+'" fill="#fff" stroke="#e8ebd6" stroke-width="9"/><circle cx="46" cy="46" r="'+r+'" fill="none" stroke="'+c+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(L*p/100)+' '+L+'" transform="rotate(-90 46 46)"/></svg><b>'+p+'%</b>'}
 function vSubject(){
   var s=S(cur),ls=L(s.id),p=pdone(s.id),n=ls.length;
-  var list=n?ls.map(function(l,i){return '<button class="ls'+(p[l.id]?' on':'')+'" data-act="tick" data-id="'+esc(l.id)+'"><span class="ck"></span><span>'+(i+1)+'. '+esc(l.t)+'</span></button>'}).join('')+'<p class="sub" style="margin:6px 0 0;font-size:13px">Bài học do giáo viên cập nhật. Bấm vào bài để đánh dấu hoàn thành.</p>'
+  var list=n?ls.map(function(l,i){return '<button class="ls'+(p[l.id]?' on':'')+'" data-act="tick" data-id="'+esc(l.id)+'"><span class="ck"></span><span>'+(i+1)+'. '+esc(l.t)+'</span></button>'}).join('')+'<p class="sub" style="margin:6px 0 0;font-size:13px">'+(SERVER?'Bài học do giáo viên cập nhật. ':'Đây là bài học mẫu cho tài khoản dùng thử. Đăng nhập bằng mã lớp để xem bài của giáo viên. ')+'Bấm vào bài để đánh dấu hoàn thành.</p>'
    :'<div style="text-align:center;padding:26px 10px"><div style="width:130px;margin:0 auto 8px">'+ILL.book+'</div><b style="font-size:18px">Chưa có bài học nào</b><p class="sub" style="margin-top:6px">Giáo viên sẽ cập nhật bài học cho môn '+s.name+'. Bạn quay lại sau nhé!</p></div>';
   return '<button class="back" data-act="nav" data-v="learn">← Học tập</button>'+
    '<div class="card shead" style="background:'+s.bg+'"><span class="c">'+sico(s)+'</span><div><h2>'+s.name+'</h2><p>'+(n?nd(s.id)+'/'+n+' bài học đã hoàn thành':'Chưa có bài học nào')+'</p></div><div class="ring" id="ring">'+ringSvg(pc(s.id),s.color)+'</div></div>'+
@@ -637,7 +664,7 @@ function vTT(){
   return '<h2 class="t">Thời khóa biểu</h2><p class="sub">Bấm vào ô để chọn môn học cho từng tiết.</p><div class="tools"><button class="pbtn sm" data-act="ttauto">✨ Tạo tự động</button><button class="pbtn sm soft" data-act="ttclear">Xóa hết</button></div><div class="card tt">'+h+'</div>';
 }
 function vSet(){
-  var role=SES.role==='student'?'Học sinh':'Cá nhân';
+  var role=SES.role==='student'?'Học sinh':SES.role==='guest'?'Khách':'Cá nhân';
   return '<h2 class="t">Cài đặt</h2><p class="sub">Thông tin tài khoản của bạn.</p><div class="card panel" style="max-width:560px"><label class="fld"><span>Tên hiển thị</span><input id="nm" value="'+esc(SES.name||'')+'"></label><label class="fld"><span>Gmail</span><input value="'+esc(SES.email||'(chế độ xem thử)')+'" disabled></label><label class="fld"><span>Loại tài khoản</span><input value="'+role+(SES.space?' · '+esc(SES.space):'')+'" disabled></label><div class="rowc"><button class="pbtn sm" data-act="savename">Lưu tên</button><button class="pbtn sm soft" data-act="modal" data-k="reset">Xóa dữ liệu học tập</button><button class="pbtn sm red" data-act="logout">Đăng xuất</button></div></div>';
 }
 function vMM(){
@@ -764,7 +791,8 @@ function search(q){
 function showRes(q){
   var r=search(q),box=$('#res');
   if(!q.trim()){box.classList.remove('show');return}
-  box.innerHTML=r.length?r.map(function(x){return '<button data-act="open" data-id="'+x.id+'"><span>'+esc(x.t)+'</span><small>'+esc(x.k)+'</small></button>'}).join(''):'<div class="none">Không tìm thấy kết quả</div>';
+  var ask=window.TENI_ASK?'<button data-act="askteni" data-q="'+esc(q.trim())+'"><span>🐢 Hỏi Teni: “'+esc(q.trim().slice(0,40))+'”</span><small>Trả lời bằng AI</small></button>':'';
+  box.innerHTML=(r.length?r.map(function(x){return '<button data-act="open" data-id="'+x.id+'"><span>'+esc(x.t)+'</span><small>'+esc(x.k)+'</small></button>'}).join(''):(ask?'':'<div class="none">Không tìm thấy kết quả</div>'))+ask;
   box.classList.add('show');
 }
 
@@ -777,6 +805,7 @@ document.addEventListener('click',function(e){
   var a=t.dataset.act,d=t.dataset;
   if(a!=='kw')$('#res').classList.remove('show');
   if(a==='nav'){go(d.v)}
+  else if(a==='askteni'){var qa=d.q;$('#q').value='';$('#res').classList.remove('show');if(window.TENI_ASK)window.TENI_ASK(qa)}
   else if(a==='tab'){if(d.go){nav='learn';cur=null;mmOpen=false}tab=d.v;if(nav!=='learn'){nav='learn';cur=null;mmOpen=false}render()}
   else if(a==='open'){closeM();$('#q').value='';nav='learn';cur=d.id;mmOpen=false;render()}
   else if(a==='tick'){var pp=ST.prog[cur];if(!pp||Array.isArray(pp))pp=ST.prog[cur]={};if(pp[d.id])delete pp[d.id];else pp[d.id]=1;save();render(true)}
@@ -818,10 +847,51 @@ document.addEventListener('input',function(e){
 document.addEventListener('change',function(e){var dn=e.target.dataset&&e.target.dataset.ans;if(dn&&RUN){var pr=dn.split('-');RUN.ans[+pr[0]]=+pr[1];updProg();saveAns();return}if(e.target.id==='rg'){ST.range=+e.target.value;save();if(tab==='kehoach')render(true)}});
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){closeM();$('#res').classList.remove('show')}
-  if(e.key==='Enter'){if(e.target.id==='q'){var r=search(e.target.value);if(r[0]){closeM();$('#q').value='';nav='learn';cur=r[0].id;mmOpen=false;render()}}else if(e.target.id==='kw'){$('#q').value=e.target.value;showRes(e.target.value)}}
+  if(e.key==='Enter'){if(e.target.id==='q'){var r=search(e.target.value);if(r[0]){closeM();$('#q').value='';nav='learn';cur=r[0].id;mmOpen=false;render()}else if(e.target.value.trim()&&window.TENI_ASK){var qq=e.target.value.trim();$('#q').value='';$('#res').classList.remove('show');window.TENI_ASK(qq)}}else if(e.target.id==='kw'){$('#q').value=e.target.value;showRes(e.target.value)}}
 });
 if(SERVER){loadStuExams();setInterval(function(){if(nav==='exam'&&!RUN&&!document.hidden)loadStuExams()},30000);LES={};render(true);API('lessons.get',{code:SES.code}).then(function(d){LES=d.lessons;render(true)}).catch(function(e){toast(e.message)});API('notice.list',{code:SES.code}).then(function(d){NEWS=d.notices[0]||null;render(true)}).catch(function(){})}
 render();
+
+/* ---------- Hỏi Teni (gia sư AI) ---------- */
+(function(){
+  if(PREVIEW)return;
+  var AK={msgs:[],busy:false};
+  var fab=document.createElement('button');fab.id='akfab';fab.type='button';fab.textContent='🐢 Hỏi Teni';
+  var pn=document.createElement('div');pn.id='akp';
+  pn.innerHTML='<div class="ah"><span>🐢 Hỏi Teni</span><button type="button" id="akx" aria-label="Đóng">✕</button></div><div id="akm"></div><div id="akf"><textarea id="akt" rows="1" maxlength="1200" placeholder="Hỏi bài học bất kỳ..."></textarea><button type="button" id="aks">Gửi</button></div>';
+  document.body.appendChild(fab);document.body.appendChild(pn);
+  var M=document.getElementById('akm'),T=document.getElementById('akt'),B=document.getElementById('aks');
+  function askApi(body){return fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(SES.tok||'')},body:JSON.stringify(body)}).then(function(r){var ct=r.headers.get('content-type')||'';if(ct.indexOf('json')<0)throw new Error('Không kết nối được máy chủ');return r.json().then(function(d){if(r.status===401){try{localStorage.removeItem('teni_session')}catch(x){}location.replace('index.html')}if(!r.ok)throw new Error(d.error||'Lỗi máy chủ');return d})})}
+  function add(cls,txt){var d=document.createElement('div');d.className='b '+cls;d.textContent=txt;M.appendChild(d);M.scrollTop=M.scrollHeight;return d}
+  function sys(txt){var d=document.createElement('div');d.className='s';d.textContent=txt;M.appendChild(d);M.scrollTop=M.scrollHeight;return d}
+  function intro(){
+    M.innerHTML='';
+    if(!SES.tok){
+      sys('Hãy đăng ký hoặc đăng nhập để hỏi Teni nhé.');
+      var b=document.createElement('button');b.className='pbtn sm';b.type='button';b.textContent='Đăng ký / Đăng nhập ›';b.style.alignSelf='center';
+      b.onclick=function(){try{localStorage.removeItem('teni_session')}catch(x){}location.href='index.html'};M.appendChild(b);
+      T.disabled=true;B.disabled=true;return;
+    }
+    T.disabled=false;B.disabled=false;
+    add('a','Chào '+(SES.name||'bạn').split(' ').slice(-1)[0]+'! Mình là Teni 🐢. Bạn cứ hỏi bài, mình giải thích từng bước nhé.');
+    AK.msgs.forEach(function(m){add(m.role==='user'?'u':'a',m.content)});
+  }
+  fab.onclick=function(){fab.style.display='none';pn.classList.add('on');intro();if(SES.tok)T.focus()};
+  document.getElementById('akx').onclick=function(){pn.classList.remove('on');fab.style.display=''};
+  function send(){
+    var q=T.value.trim();if(!q||AK.busy)return;
+    T.value='';AK.msgs.push({role:'user',content:q});add('u',q);
+    AK.busy=true;B.disabled=true;var w=add('a','Teni đang nghĩ...');
+    var sj='';try{if(typeof cur!=='undefined'&&cur&&S(cur))sj=S(cur).name}catch(e){}
+    askApi({messages:AK.msgs.slice(-10),subject:sj}).then(function(d){
+      w.textContent=d.reply;AK.msgs.push({role:'assistant',content:d.reply});
+      if(d.left!=null&&d.left<=5)sys('Hôm nay bạn còn '+d.left+' lượt hỏi.');
+    }).catch(function(e){AK.msgs.pop();w.textContent=e.message||'Teni chưa trả lời được.'}).then(function(){AK.busy=false;B.disabled=false;M.scrollTop=M.scrollHeight});
+  }
+  B.onclick=send;
+  window.TENI_ASK=function(q){if(!pn.classList.contains('on'))fab.onclick();if(SES.tok&&q){T.value=q;send()}};
+  T.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+})();
 })();
 </script>
 </body>
