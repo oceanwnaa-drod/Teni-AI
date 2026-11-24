@@ -225,6 +225,7 @@ textarea.nt{width:100%;min-height:210px;border:2px solid #e3e8cd;background:#fff
 .exv video{display:block;width:120px;height:90px;border-radius:10px;background:#222;object-fit:cover;transform:scaleX(-1)}.exv small{display:block;font-weight:800;font-size:12px;margin-top:4px;color:#4f8a35;max-width:120px}
 .exfs{position:fixed;inset:0;z-index:5;background:rgba(240,248,225,.97);display:flex;align-items:center;justify-content:center;padding:20px}.exfs[hidden]{display:none}
 
+#screen::after{content:'';display:block;height:84px}
 #akfab{position:fixed;right:18px;bottom:84px;z-index:60;border:0;border-radius:999px;padding:12px 18px;font:800 15px inherit;color:#fff;background:linear-gradient(180deg,var(--g1),var(--g2));box-shadow:0 8px 18px rgba(90,150,50,.4);cursor:pointer}
 #akp{position:fixed;right:18px;bottom:84px;z-index:70;width:min(380px,calc(100vw - 28px));height:min(520px,calc(100vh - 120px));background:#fffff7;border:2px solid #dcebd2;border-radius:22px;box-shadow:0 14px 36px rgba(60,90,40,.28);display:none;flex-direction:column;overflow:hidden}
 #akp.on{display:flex}
@@ -329,6 +330,21 @@ var DEMO={toan:['Số tự nhiên và các phép tính','Phân số và số th�
 function DEMOL(id){return (DEMO[id]||[]).map(function(t,i){return {id:'demo-'+id+'-'+i,t:t}})}
 function L(id){if(Array.isArray(LES[id])&&LES[id].length)return LES[id];return SERVER?[]:DEMOL(id)}
 function S(id){for(var i=0;i<SUBJ.length;i++)if(SUBJ[i].id===id)return SUBJ[i]}
+/* ---------- tệp giáo viên đăng cho từng môn ---------- */
+var SFILES={};
+function SF(id){return Array.isArray(SFILES[id])?SFILES[id]:[]}
+function fsz(b){return b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB'}
+function loadSFiles(){if(!SERVER)return;API('files.list',{code:SES.code}).then(function(d){SFILES=d.files||{};render(true)}).catch(function(){})}
+function downloadSF(id,btn){
+  if(btn){btn.disabled=true}
+  API('files.get',{code:SES.code,id:id}).then(function(d){
+    var bin=atob(d.data),n=bin.length,u=new Uint8Array(n);for(var i=0;i<n;i++)u[i]=bin.charCodeAt(i);
+    var url=URL.createObjectURL(new Blob([u],{type:d.mime||'application/octet-stream'}));
+    var a=document.createElement('a');a.href=url;a.download=d.name||'tai-lieu';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url)},4000);
+    if(btn)btn.disabled=false;
+  }).catch(function(e){if(btn)btn.disabled=false;toast(e.message)});
+}
 function pdone(id){var p=ST.prog[id];return p&&!Array.isArray(p)?p:{}}
 function nd(id){var p=pdone(id);return L(id).filter(function(l){return p[l.id]}).length}
 function pc(id){var n=L(id).length;return n?Math.round(nd(id)*100/n):0}
@@ -656,7 +672,9 @@ function vSubject(){
   return '<button class="back" data-act="nav" data-v="learn">← Học tập</button>'+
    '<div class="card shead" style="background:'+s.bg+'"><span class="c">'+sico(s)+'</span><div><h2>'+s.name+'</h2><p>'+(n?nd(s.id)+'/'+n+' bài học đã hoàn thành':'Chưa có bài học nào')+'</p></div><div class="ring" id="ring">'+ringSvg(pc(s.id),s.color)+'</div></div>'+
    '<div class="two"><div class="card panel"><h3>Bài học'+(n?' <small style="color:#7a8b6f;font-weight:700">('+n+')</small>':'')+'</h3>'+list+'</div>'+
-   '<div class="card panel"><h3>Ghi chú của tôi</h3><textarea class="nt" id="note" placeholder="Viết ghi chú cho môn '+s.name+'...">'+esc(ST.notes[s.id]||'')+'</textarea></div></div>';
+   '<div class="card panel"><h3>Ghi chú của tôi</h3><textarea class="nt" id="note" placeholder="Viết ghi chú cho môn '+s.name+'...">'+esc(ST.notes[s.id]||'')+'</textarea></div></div>'+
+   (SERVER?'<div class="card panel" style="margin-top:14px"><h3>Tài liệu của giáo viên'+(SF(s.id).length?' <small style="color:#7a8b6f;font-weight:700">('+SF(s.id).length+')</small>':'')+'</h3>'+
+    (SF(s.id).length?SF(s.id).map(function(f){return '<div class="ls" style="display:flex;align-items:center;gap:10px"><span>📄</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(f.name)+'">'+esc(f.name)+'</span><small style="color:#7a8b6f;font-weight:700;white-space:nowrap">'+fsz(f.size)+'</small><button class="pbtn sm" data-act="dlf" data-id="'+esc(f.id)+'">⬇ Tải</button></div>'}).join(''):'<p class="sub" style="margin:6px 0 0">Giáo viên chưa đăng tài liệu nào cho môn '+s.name+'.</p>')+'</div>':'');
 }
 function vTT(){
   var h='<div class="h"></div>'+DAYS.map(function(d){return '<div class="h">'+d+'</div>'}).join('');
@@ -807,7 +825,8 @@ document.addEventListener('click',function(e){
   if(a==='nav'){go(d.v)}
   else if(a==='askteni'){var qa=d.q;$('#q').value='';$('#res').classList.remove('show');if(window.TENI_ASK)window.TENI_ASK(qa)}
   else if(a==='tab'){if(d.go){nav='learn';cur=null;mmOpen=false}tab=d.v;if(nav!=='learn'){nav='learn';cur=null;mmOpen=false}render()}
-  else if(a==='open'){closeM();$('#q').value='';nav='learn';cur=d.id;mmOpen=false;render()}
+  else if(a==='open'){closeM();$('#q').value='';nav='learn';cur=d.id;mmOpen=false;render();loadSFiles()}
+  else if(a==='dlf'){downloadSF(d.id,t)}
   else if(a==='tick'){var pp=ST.prog[cur];if(!pp||Array.isArray(pp))pp=ST.prog[cur]={};if(pp[d.id])delete pp[d.id];else pp[d.id]=1;save();render(true)}
   else if(a==='kw'){var v=$('#kw').value;if(!v.trim()){$('#kw').focus();return}$('#q').value=v;showRes(v);window.scrollTo(0,0)}
   else if(a==='plan'){ST.range=+$('#rg').value;save();tab='kehoach';render()}
@@ -849,7 +868,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){closeM();$('#res').classList.remove('show')}
   if(e.key==='Enter'){if(e.target.id==='q'){var r=search(e.target.value);if(r[0]){closeM();$('#q').value='';nav='learn';cur=r[0].id;mmOpen=false;render()}else if(e.target.value.trim()&&window.TENI_ASK){var qq=e.target.value.trim();$('#q').value='';$('#res').classList.remove('show');window.TENI_ASK(qq)}}else if(e.target.id==='kw'){$('#q').value=e.target.value;showRes(e.target.value)}}
 });
-if(SERVER){loadStuExams();setInterval(function(){if(nav==='exam'&&!RUN&&!document.hidden)loadStuExams()},30000);LES={};render(true);API('lessons.get',{code:SES.code}).then(function(d){LES=d.lessons;render(true)}).catch(function(e){toast(e.message)});API('notice.list',{code:SES.code}).then(function(d){NEWS=d.notices[0]||null;render(true)}).catch(function(){})}
+if(SERVER){loadStuExams();setInterval(function(){if(nav==='exam'&&!RUN&&!document.hidden)loadStuExams()},30000);LES={};render(true);API('lessons.get',{code:SES.code}).then(function(d){LES=d.lessons;render(true)}).catch(function(e){toast(e.message)});loadSFiles();API('notice.list',{code:SES.code}).then(function(d){NEWS=d.notices[0]||null;render(true)}).catch(function(){})}
 render();
 
 /* ---------- Hỏi Teni (gia sư AI) ---------- */

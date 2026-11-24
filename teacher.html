@@ -412,6 +412,30 @@ function saveLes(){
 }
 function L(id){return Array.isArray(LES[id])?LES[id]:[]}
 function S(id){for(var i=0;i<SUBJ.length;i++)if(SUBJ[i].id===id)return SUBJ[i]}
+/* ---------- tệp theo môn (giáo viên đăng, học sinh xem) ---------- */
+var SFILES={};
+var SF_OK=['pdf','doc','docx','ppt','pptx','xls','xlsx','txt','png','jpg','jpeg'],SF_MAX=3*1048576;
+function SF(id){return Array.isArray(SFILES[id])?SFILES[id]:[]}
+function loadSFiles(){if(!SERVER)return;API('files.list',{code:SES.code}).then(function(d){SFILES=d.files||{};render(true)}).catch(function(e){toast(e.message)})}
+function readB64(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){var s=String(r.result||'');res(s.slice(s.indexOf(',')+1))};r.onerror=function(){rej(new Error('Không đọc được tệp'))};r.readAsDataURL(f)})}
+function addSubjFiles(fl){
+  if(!SERVER){toast('Cần đăng nhập vào lớp học để đăng tệp cho học sinh');return}
+  var sj=dsub,list=Array.prototype.slice.call(fl),ok=0,bad=[];
+  (function next(){
+    var f=list.shift();
+    if(!f){loadSFiles();toast(ok?('Đã đăng '+ok+' tệp'+(bad.length?' · bỏ qua: '+bad.join(', '):'')):('Không đăng được: '+bad.join(', ')));return}
+    var e=(f.name.split('.').pop()||'').toLowerCase();
+    if(SF_OK.indexOf(e)<0){bad.push(f.name+' (sai định dạng)');return next()}
+    if(f.size>SF_MAX){bad.push(f.name+' (lớn hơn 3 MB)');return next()}
+    toast('Đang tải lên '+f.name+'...');
+    readB64(f).then(function(b64){return API('files.add',{code:SES.code,subject:sj,name:f.name,data:b64})}).then(function(){ok++;next()}).catch(function(er){bad.push(f.name+' ('+er.message+')');next()});
+  })();
+}
+function sfRows(id){
+  var fs=SF(id);
+  if(!fs.length)return '<div class="emp">Môn này chưa có tệp nào. Tệp bạn đăng sẽ hiện cho học sinh ở trang môn học.</div>';
+  return fs.map(function(f){return '<div class="li2"><span>📄</span><input value="'+esc(f.name)+'" readonly title="'+esc(f.name)+'"><small style="white-space:nowrap;color:#7a8b6f;font-weight:700">'+fmtSize(f.size)+'</small><button class="x2" data-act="sfdel" data-id="'+esc(f.id)+'" aria-label="Xóa tệp">✕</button></div>'}).join('');
+}
 
 /* ---------- học sinh trong không gian ---------- */
 var MEMC=[];
@@ -567,7 +591,9 @@ function vDocs(){
    '<div class="subs" style="grid-template-columns:repeat(4,1fr);max-width:900px">'+SUBJ.map(function(x){return '<button class="st" style="background:'+x.bg+';'+(x.id===dsub?'border-color:'+x.color+';':'')+'" data-act="dsub" data-id="'+x.id+'"><span style="font-weight:800;color:'+x.color+'">'+x.name+'</span><small>'+L(x.id).length+' bài</small></button>'}).join('')+'</div>'+
    '<div class="card pcard" style="max-width:900px"><div class="hd"><b style="font-size:19px;color:'+s.color+'">'+s.name+'</b><span class="mb2" style="margin:0 0 0 6px">'+ls.length+' bài học</span></div>'+
    (ls.length?ls.map(function(l,i){return '<div class="li2"><span>'+(i+1)+'</span><input data-les="'+l.id+'" value="'+esc(l.t)+'" maxlength="80"><button class="ar" data-act="lup" data-i="'+i+'" aria-label="Lên">↑</button><button class="ar" data-act="ldn" data-i="'+i+'" aria-label="Xuống">↓</button><button class="x2" data-act="ldel" data-i="'+i+'" aria-label="Xóa">✕</button></div>'}).join(''):'<div class="emp">Môn này chưa có bài học. Hãy thêm bài đầu tiên bên dưới.</div>')+
-   '<div class="addrow"><input id="newles" placeholder="Tên bài học mới (vd: Phân số)" maxlength="80"><button class="pbtn sm" data-act="ladd">＋ Thêm</button></div></div>';
+   '<div class="addrow"><input id="newles" placeholder="Tên bài học mới (vd: Phân số)" maxlength="80"><button class="pbtn sm" data-act="ladd">＋ Thêm</button></div></div>'+
+   '<div class="card pcard" style="max-width:900px;margin-top:14px"><div class="hd"><b style="font-size:19px;color:'+s.color+'">📎 Tệp của môn '+s.name+'</b><span class="mb2" style="margin:0 0 0 6px">'+SF(dsub).length+' tệp</span></div>'+
+   (SERVER?sfRows(dsub)+'<label class="pbtn sm" style="display:inline-block;margin-top:12px;cursor:pointer">📂 Chọn tệp để đăng<input type="file" data-sf="1" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg" style="display:none"></label><p class="mb2" style="margin-top:10px">PDF, Word, PowerPoint, Excel, TXT, PNG, JPG. Mỗi tệp tối đa 3 MB. Học sinh trong lớp sẽ thấy và tải được ngay.</p>':'<div class="emp">Cần đăng nhập vào lớp học thì mới đăng tệp cho học sinh được.</div>')+'</div>';
 }
 function vStats(){
   var mem=members().length,max=1;SUBJ.forEach(function(s){max=Math.max(max,L(s.id).length)});
@@ -680,6 +706,42 @@ function render(keep){
 }
 function go(n){nav=n;render()}
 
+
+/* ---------- dán đề: tự tách câu hỏi ---------- */
+function parseQuiz(text){
+  var out=[],cur=null,miss=0,lastOpt=-1;
+  function done(){
+    if(!cur)return;
+    cur.q=cur.q.replace(/\s+/g,' ').trim();
+    cur.o=cur.o.map(function(x){return x.replace(/\s+/g,' ').trim()}).filter(function(x){return x});
+    if(cur.q&&cur.o.length>=2){
+      if(cur.a==null){cur.a=0;miss++}
+      if(cur.a>=cur.o.length)cur.a=0;
+      out.push({q:cur.q.slice(0,300),o:cur.o.slice(0,6).map(function(x){return x.slice(0,150)}),a:cur.a});
+    }
+    cur=null;lastOpt=-1;
+  }
+  String(text||'').replace(/\r/g,'').split('\n').forEach(function(raw){
+    var l=raw.trim();if(!l)return;
+    var m;
+    if((m=/^(?:c[âa]u|question|q)\s*\d*\s*[:.)\-–]\s*(.*)$/i.exec(l))||(m=/^\d{1,3}\s*[.)]\s+(.*)$/.exec(l))){
+      done();cur={q:m[1],o:[],a:null};return;
+    }
+    if(!cur)return;
+    if((m=/^(?:đ[áa]p\s*[áa]n(?:\s*đ[úu]ng)?|dap\s*an|đa|answer|ans|key)\s*[:\-–]?\s*\(?([A-Fa-f])\b/i.exec(l))){
+      cur.a='ABCDEF'.indexOf(m[1].toUpperCase());return;
+    }
+    if((m=/^(\*?)\s*\(?([A-Fa-f])\s*[.)\]:]\s*(.*)$/.exec(l))){
+      var idx='ABCDEF'.indexOf(m[2].toUpperCase()),txt=m[3],star=m[1]==='*';
+      if(/\s*\*\s*$/.test(txt)){star=true;txt=txt.replace(/\s*\*\s*$/,'')}
+      cur.o[idx]=txt;lastOpt=idx;if(star)cur.a=idx;return;
+    }
+    if(lastOpt>=0)cur.o[lastOpt]=(cur.o[lastOpt]||'')+' '+l;else cur.q+=' '+l;
+  });
+  done();
+  out.missing=miss;return out;
+}
+
 /* ---------- hộp thoại ---------- */
 function openExamForm(){QD=[{q:'',o:['',''],a:0}];modal(examForm());$('#pn').classList.add('big')}
 function qbHtml(){
@@ -699,7 +761,12 @@ function examForm(){
    '<label class="fld"><span>Giờ bắt đầu</span><input id="e_h" type="time" value="'+pad(d.getHours())+':'+pad(d.getMinutes())+'"></label></div>'+
    '<label class="fld"><span>Thời gian làm bài (phút)</span><input id="e_m" type="number" min="5" max="240" value="45"></label>'+
    '<label class="chk"><input type="checkbox" id="e_cam"><span><b>Bắt buộc bật camera và mic</b><small>Hệ thống báo khi học sinh nhìn lệch một hướng quá 10 giây, rời tab hoặc thoát toàn màn hình. Học sinh sẽ được thông báo và phải đồng ý trước khi làm. Hệ thống chỉ cảnh báo, bạn quyết định xử lý. Mic chỉ đo mức ồn, không ghi âm.</small></span></label>'+
-   '<h3 style="margin-top:18px;font-size:18px">Câu hỏi trắc nghiệm</h3><div id="qb">'+qbHtml()+'</div><button class="pbtn sm soft" data-act="qadd" style="margin:4px 0 14px">＋ Thêm câu hỏi</button>'+
+   '<h3 style="margin-top:18px;font-size:18px">Câu hỏi trắc nghiệm</h3>'+
+   '<details class="pastebox" style="margin:0 0 12px;background:#f1f8ea;border-radius:14px;padding:10px 14px"><summary style="cursor:pointer;font-weight:700">📋 Dán cả đề để tự tách câu (nhanh hơn)</summary>'+
+   '<p class="mb2" style="margin:8px 0">Copy đề từ Word dán vào đây. Mỗi câu dạng:<br><code>Câu 1: 2 + 2 = ?<br>A. 3<br>B. 4<br>C. 5<br>D. 6<br>Đáp án: B</code></p>'+
+   '<textarea id="e_paste" rows="8" placeholder="Dán đề vào đây..." style="width:100%"></textarea>'+
+   '<button class="pbtn sm" data-act="parsepaste" style="margin-top:8px">Tách thành câu hỏi</button></details>'+
+   '<div id="qb">'+qbHtml()+'</div><button class="pbtn sm soft" data-act="qadd" style="margin:4px 0 14px">＋ Thêm câu hỏi</button>'+
    '<button class="pbtn" data-act="examsave" style="width:100%">Tạo bài kiểm tra</button>';
 }
 function classesModal(){
@@ -787,12 +854,20 @@ document.addEventListener('click',function(e){
     modal(stuDetail(em,null));
     API('exam.events',{code:SES.code,id:curExam().id,email:em}).then(function(r){if(modalKind==='stu')$('#pn').innerHTML='<button class="x" data-act="close" aria-label="Đóng">✕</button>'+stuDetail(em,r.events)}).catch(function(e){toast(e.message)});
   }
+  else if(a==='parsepaste'){
+    var r=parseQuiz($('#e_paste').value);
+    if(!r.length){toast('Chưa tách được câu nào. Mỗi câu cần có "Câu 1:" và các đáp án A. B. C. D.');return}
+    var empty=QD.length===1&&!QD[0].q&&!QD[0].o[0]&&!QD[0].o[1];
+    QD=(empty?[]:QD).concat(r).slice(0,100);$('#qb').innerHTML=qbHtml();$('#e_paste').value='';
+    toast('Đã tách '+r.length+' câu'+(r.missing?' · '+r.missing+' câu chưa có đáp án đúng, hãy chọn lại':'')+'. Kiểm tra lại rồi bấm Tạo.');
+  }
   else if(a==='qadd'){QD.push({q:'',o:['',''],a:0});$('#qb').innerHTML=qbHtml();var ta=$('#qb').querySelectorAll('textarea');ta[ta.length-1].focus()}
   else if(a==='qdel'){QD.splice(+d.i,1);$('#qb').innerHTML=qbHtml()}
   else if(a==='qoadd'){var qq=QD[+d.i];if(qq.o.length<6){qq.o.push('');$('#qb').innerHTML=qbHtml()}}
   else if(a==='qodel'){var q2=QD[+d.i],jj=+d.j;if(q2.o.length>2){q2.o.splice(jj,1);if(q2.a===jj)q2.a=0;else if(q2.a>jj)q2.a--;$('#qb').innerHTML=qbHtml()}}
   else if(a==='dtab'){dtab=d.v;render(true)}
   else if(a==='dsub'){dsub=d.id;render(true)}
+  else if(a==='sfdel'){if(!confirm('Xóa tệp này? Học sinh sẽ không còn thấy tệp.'))return;API('files.del',{code:SES.code,id:d.id}).then(function(){loadSFiles();toast('Đã xóa tệp')}).catch(function(er){toast(er.message)})}
   else if(a==='docmenu'){var dc=ST.docs.filter(function(z){return z.id===d.id})[0];if(dc)modal('<h3>'+esc(dc.name)+'</h3><p style="font-weight:600">'+fmtSize(dc.size)+' · tải lên '+fmtDate(dc.at)+'</p><div class="rowc"><button class="pbtn sm red" data-act="docdel" data-id="'+dc.id+'">Xóa tài liệu</button><button class="pbtn sm soft" data-act="close">Giữ lại</button></div>')}
   else if(a==='docdel'){ST.docs=ST.docs.filter(function(z){return z.id!==d.id});save();closeM();render(true);toast('Đã xóa tài liệu')}
   else if(a==='ladd'){var inp=$('#newles'),v=inp.value.trim();if(!v){inp.focus();return}(LES[dsub]=L(dsub)).push({id:'l'+uid(),t:v});saveLes();render(true);$('#newles').focus()}
@@ -843,7 +918,7 @@ document.addEventListener('input',function(e){
   else if(t.dataset&&t.dataset.qo!==undefined){var qp=t.dataset.qo.split('-');QD[+qp[0]].o[+qp[1]]=t.value}
   else if(t.dataset&&t.dataset.les){var l=L(dsub).filter(function(z){return z.id===t.dataset.les})[0];if(l){l.t=t.value;saveLes()}}
 });
-document.addEventListener('change',function(e){if(e.target.dataset&&e.target.dataset.qa!==undefined){var qa=e.target.dataset.qa.split('-');QD[+qa[0]].a=+qa[1];return}if(e.target.type==='file'&&e.target.files&&e.target.files.length){addFiles(e.target.files);e.target.value=''}});
+document.addEventListener('change',function(e){if(e.target.dataset&&e.target.dataset.qa!==undefined){var qa=e.target.dataset.qa.split('-');QD[+qa[0]].a=+qa[1];return}if(e.target.dataset&&e.target.dataset.sf!==undefined){if(e.target.files&&e.target.files.length){addSubjFiles(e.target.files);e.target.value=''}return}if(e.target.type==='file'&&e.target.files&&e.target.files.length){addFiles(e.target.files);e.target.value=''}});
 ['dragover','dragenter'].forEach(function(n){document.addEventListener(n,function(e){var z=e.target.closest&&e.target.closest('[data-drop]');if(z){e.preventDefault();z.classList.add('over')}})});
 document.addEventListener('dragleave',function(e){var z=e.target.closest&&e.target.closest('[data-drop]');if(z)z.classList.remove('over')});
 document.addEventListener('drop',function(e){var z=e.target.closest&&e.target.closest('[data-drop]');if(z){e.preventDefault();z.classList.remove('over');if(e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files)}});
@@ -855,7 +930,7 @@ document.addEventListener('keydown',function(e){
     else if(e.target.id==='q'){var r=FEAT.filter(function(f){return norm(f[0]).indexOf(norm(e.target.value.trim()))>-1})[0];if(r)doFeat(r[1])}
   }
 });
-if(SERVER){API('lessons.get',{code:SES.code}).then(function(d){LES=d.lessons;render(true)}).catch(function(e){toast(e.message)});loadMembers();loadExams()}
+if(SERVER){API('lessons.get',{code:SES.code}).then(function(d){LES=d.lessons;render(true)}).catch(function(e){toast(e.message)});loadMembers();loadExams();loadSFiles()}
 setInterval(poll,8000);
 setInterval(function(){if(!SERVER&&(nav==='home'||nav==='exam')&&!$('#ov').classList.contains('show')&&curExam()&&!/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||''))render(true)},60000);
 render();
