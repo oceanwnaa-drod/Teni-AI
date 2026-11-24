@@ -8,6 +8,19 @@ const { isGmail } = require('./_otp');
 const SUBJECTS = ['toan', 'van', 'anh', 'ly', 'hoa', 'sinh', 'su', 'dia'];
 const CODE_RE = /^TENI-[A-Z0-9]{4}$/;
 const ID_RE = /^[A-Za-z0-9_-]{1,40}$/;
+
+// ====== Tệp theo môn ======
+const FILE_TYPES = {
+  pdf: 'application/pdf', doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ppt: 'application/vnd.ms-powerpoint',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  txt: 'text/plain', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+};
+const FILE_MAX = 3 * 1048576; // 3 MB mỗi tệp (giới hạn body của Vercel là 4,5 MB)
+const FILE_PER_SPACE = 150;
 const ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 function fail(http, msg) { const e = new Error(msg); e.http = http; return e; }
@@ -193,6 +206,54 @@ const actions = {
     const keep = rows.length ? `&id=not.in.${db.quoted(rows.map((r) => r.id))}` : '';
     await db.del('lessons', `space_code=${db.eq(code)}&subject=${db.eq(b.subject)}${keep}`);
     return { ok: true, count: rows.length };
+  },
+
+
+  // ====== Tệp theo môn: giáo viên đăng, học sinh xem và tải ======
+  async 'files.list'(b, email) {
+    const code = codeOf(b);
+    await need(code, email);
+    const rows = await db.select('subject_files', `space_code=${db.eq(code)}&select=id,subject,name,size,by_name,created_at&order=created_at.desc&limit=${FILE_PER_SPACE}`);
+    const out = {};
+    SUBJECTS.forEach((x) => { out[x] = []; });
+    rows.forEach((r) => { if (out[r.subject]) out[r.subject].push({ id: r.id, name: r.name, size: r.size, by: r.by_name, at: Date.parse(r.created_at) }); });
+    return { files: out };
+  },
+
+  async 'files.add'(b, email) {
+    const code = codeOf(b);
+    await need(code, email, ['ql', 'gv']);
+    if (SUBJECTS.indexOf(b.subject) < 0) throw fail(400, 'Môn học không hợp lệ.');
+    const name = str(b.name, 120).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_');
+    const ext = (name.split('.').pop() || '').toLowerCase();
+    if (!name || !Object.prototype.hasOwnProperty.call(FILE_TYPES, ext)) throw fail(400, 'Chỉ nhận PDF, Word, PowerPoint, Excel, TXT, PNG, JPG.');
+    const data = String(b.data || '');
+    if (!data || data.length > Math.ceil(FILE_MAX * 4 / 3) + 8 || !/^[A-Za-z0-9+/]+={0,2}$/.test(data)) throw fail(400, 'Tệp không hợp lệ hoặc lớn hơn 3 MB.');
+    const size = Math.floor(data.length * 3 / 4) - (data.endsWith('==') ? 2 : data.endsWith('=') ? 1 : 0);
+    if (size > FILE_MAX) throw fail(400, 'Tệp lớn hơn 3 MB.');
+    const have = await db.select('subject_files', `space_code=${db.eq(code)}&select=id&limit=${FILE_PER_SPACE + 1}`);
+    if (have.length >= FILE_PER_SPACE) throw fail(400, 'Đã đủ ' + FILE_PER_SPACE + ' tệp, hãy xóa bớt tệp cũ.');
+    const acc = (await db.select('accounts', `email=${db.eq(email)}&limit=1`))[0];
+    const id = 'f' + crypto.randomBytes(8).toString('hex');
+    await db.insert('subject_files', [{ space_code: code, id, subject: b.subject, name, mime: FILE_TYPES[ext], size, data, by_name: str((acc && acc.name) || email.split('@')[0], 60) }]);
+    return { ok: true, file: { id, name, size, at: Date.now() } };
+  },
+
+  async 'files.get'(b, email) {
+    const code = codeOf(b);
+    await need(code, email);
+    if (!ID_RE.test(String(b.id))) throw fail(400, 'Mã tệp không hợp lệ.');
+    const r = (await db.select('subject_files', `space_code=${db.eq(code)}&id=${db.eq(b.id)}&select=name,mime,data&limit=1`))[0];
+    if (!r) throw fail(404, 'Không tìm thấy tệp.');
+    return { name: r.name, mime: r.mime, data: r.data };
+  },
+
+  async 'files.del'(b, email) {
+    const code = codeOf(b);
+    await need(code, email, ['ql', 'gv']);
+    if (!ID_RE.test(String(b.id))) throw fail(400, 'Mã tệp không hợp lệ.');
+    await db.del('subject_files', `space_code=${db.eq(code)}&id=${db.eq(b.id)}`);
+    return { ok: true };
   },
 
   async 'notice.add'(b, email) {
