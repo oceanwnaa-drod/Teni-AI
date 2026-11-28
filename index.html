@@ -110,7 +110,7 @@ nav a{cursor:pointer}
 <button class="fab" onclick="openHelp()">🎧 Hỗ trợ</button>
 <div id="help" class="ov" onclick="if(event.target===this)closeHelp()"><div class="pn"><button class="x" onclick="closeHelp()" aria-label="Đóng">✕</button><h2>🎧 Trung tâm hỗ trợ</h2><p class="sub">Chúng mình luôn sẵn sàng giúp bạn</p><div class="seg" id="ht"></div><div id="hb"></div></div></div>
 <script>
-var S={tab:'guest',pMode:'login',lMode:'create',step:1,role:null,space:null,spaceName:'',email:null,tok:'',mem:null,msg:''};
+var S={tab:(location.hash==='#login'?'space':'guest'),pMode:'login',lMode:'create',step:1,role:null,space:null,spaceName:'',email:null,tok:'',mem:null,msg:''};
 var $=function(i){return document.getElementById(i)};
 var TABS=[['guest','👤 Khách'],['personal','🔒 Cá nhân'],['space','🏫 Học tập']];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -136,8 +136,8 @@ function render(){
   var v=$('view');
   if(S.tab==='guest') v.innerHTML=
     '<h2>Dùng với tư cách khách</h2><p class="sub">Không cần đăng ký hay đăng nhập.</p>'+
-    '<p class="note">Bạn có thể dùng Teni AI ngay. Lịch sử trò chuyện sẽ không được lưu khi bạn đóng trang.</p>'+
-    '<button class="btn" onclick="done(\'🎉\',\'Chào mừng khách!\',\'Bạn đang dùng Teni AI ở chế độ khách.\')">Vào dùng ngay →</button>';
+    '<p class="note">Khách xem được môn học, thời khóa biểu và thống kê. Muốn <b>làm bài kiểm tra</b> hoặc <b>hỏi Teni</b>, bạn cần đăng ký hoặc đăng nhập (tab Học tập). Lịch sử sẽ không được lưu khi bạn đóng trang.</p>'+
+    '<button class="btn" onclick="S.tok=\'\';enterApp({role:\'guest\',name:\'Khách\',email:\'\'})">Vào dùng ngay →</button>';
   else if(S.tab==='personal') v.innerHTML=
     '<h2>Tài khoản cá nhân</h2><p class="sub">Chỉ dành cho một mình bạn.</p>'+
     '<div class="seg"><button class="'+(S.pMode==='login'?'on':'')+'" onclick="S.pMode=\'login\';S.msg=\'\';render()">Đăng nhập</button><button class="'+(S.pMode==='reg'?'on':'')+'" onclick="S.pMode=\'reg\';S.msg=\'\';render()">Đăng ký</button></div>'+
@@ -222,7 +222,7 @@ function manage(v){
   '<div class="h3">Thành viên ('+act.length+')</div>'+act.map(function(m){var r=m.role;return row(m.email,(r==='ql'?'👑 Quản lý':r==='gv'?'Giáo viên':r==='hs'?'Học sinh':'Chưa chọn vai trò'))}).join('')+
   '<button class="btn" style="margin-top:14px" onclick="enter()">Vào học →</button>';
 }
-var FAQ=[['Dùng chế độ khách có cần đăng ký không?','Không cần. Bạn chỉ cần bấm “Vào dùng ngay” ở tab Khách. Lịch sử sẽ không được lưu khi bạn đóng trang.'],['Tài khoản cá nhân khác gì không gian học tập?','Tài khoản cá nhân chỉ dành cho một mình bạn. Không gian học tập là nơi chung cho cả lớp, do người quản lý tạo và quản lý thành viên.'],['Làm sao để tham gia không gian học tập?','Vào tab Học tập, chọn “Đăng nhập vào”, nhập mã không gian cùng Gmail của bạn. Nếu chưa được mời, bạn sẽ chờ người quản lý duyệt rồi đăng nhập lại.'],['Mã không gian lấy ở đâu?','Người quản lý sẽ thấy mã (dạng TENI-XXXX) sau khi tạo không gian, có nút sao chép để gửi cho mọi người.'],['Mình là giáo viên hay học sinh thì chọn ở đâu?','Sau khi vào được không gian, bạn sẽ thấy màn “Bạn là ai?” để chọn Giáo viên hoặc Học sinh. Người quản lý thì mặc định có vai trò Quản lý.'],['Mình không nhận được mã xác nhận thì sao?','Hãy kiểm tra cả thư rác, đợi 30 giây rồi bấm “Gửi lại mã”. Nếu vẫn không có, hãy gửi yêu cầu hỗ trợ ở tab “Gửi yêu cầu”.'],['Không gian học tập có dùng chung giữa các máy được không?','Được. Không gian, thành viên, bài học và thông báo được lưu trên máy chủ nên mọi người dùng chung từ nhiều máy khác nhau.']];
+var FAQ=[['Dùng chế độ khách có cần đăng ký không?','Không cần để xem môn học, thời khóa biểu, thống kê. Nhưng muốn làm bài kiểm tra hoặc hỏi Teni thì cần đăng ký / đăng nhập. Lịch sử sẽ không được lưu khi bạn đóng trang.'],['Tài khoản cá nhân khác gì không gian học tập?','Tài khoản cá nhân chỉ dành cho một mình bạn. Không gian học tập là nơi chung cho cả lớp, do người quản lý tạo và quản lý thành viên.'],['Làm sao để tham gia không gian học tập?','Vào tab Học tập, chọn “Đăng nhập vào”, nhập mã không gian cùng Gmail của bạn. Nếu chưa được mời, bạn sẽ chờ người quản lý duyệt rồi đăng nhập lại.'],['Mã không gian lấy ở đâu?','Người quản lý sẽ thấy mã (dạng TENI-XXXX) sau khi tạo không gian, có nút sao chép để gửi cho mọi người.'],['Mình là giáo viên hay học sinh thì chọn ở đâu?','Sau khi vào được không gian, bạn sẽ thấy màn “Bạn là ai?” để chọn Giáo viên hoặc Học sinh. Người quản lý thì mặc định có vai trò Quản lý.'],['Mình không nhận được mã xác nhận thì sao?','Hãy kiểm tra cả thư rác, đợi 30 giây rồi bấm “Gửi lại mã”. Nếu vẫn không có, hãy gửi yêu cầu hỗ trợ ở tab “Gửi yêu cầu”.'],['Không gian học tập có dùng chung giữa các máy được không?','Được. Không gian, thành viên, bài học và thông báo được lưu trên máy chủ nên mọi người dùng chung từ nhiều máy khác nhau.']];
 var H={tab:'faq',q:'',done:null};
 function openHelp(){H.done=null;$('help').classList.add('show');helpRender()}
 function closeHelp(){$('help').classList.remove('show')}
@@ -244,7 +244,7 @@ function sendHelp(){
   H.done='HT-'+Math.random().toString(36).slice(2,7).toUpperCase();helpRender();
 }
 document.addEventListener('keydown',function(ev){if(ev.key==='Escape')closeHelp()});
-var OT={email:'',token:'',ok:null,cd:0,t:null};
+var OT={email:'',token:'',dev:'',ok:null,cd:0,t:null};
 function askOtp(email,ok){OT.email=email;OT.ok=ok;sendCode()}
 function api(path,body){
   return fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
@@ -255,13 +255,13 @@ function api(path,body){
 }
 function sendCode(){
   $('view').innerHTML='<div style="text-align:center;padding:30px 0"><div style="font-size:42px">📧</div><p class="sub">Đang gửi mã tới '+esc(OT.email)+'...</p></div>';
-  api('/api/send-code',{email:OT.email}).then(function(d){OT.token=d.token;otpView()}).catch(function(e){
+  api('/api/send-code',{email:OT.email}).then(function(d){OT.token=d.token;OT.dev=d.devCode||'';otpView()}).catch(function(e){
     S.msg=e.api?e.message:'Không kết nối được máy chủ gửi mail. Hãy thử lại sau.';render();
   });
 }
 function otpView(){
   $('view').innerHTML='<h2>Nhập mã xác nhận</h2><p class="sub">Mã 6 số đã được gửi tới<br><b>'+esc(OT.email)+'</b></p>'+
-   '<p class="note">Hãy kiểm tra hộp thư đến (và cả thư rác). Mã có hiệu lực 10 phút.</p>'+
+   (OT.dev?'<p class="note" style="background:#fff7d6;border-radius:10px;padding:10px"><b>Chế độ thử nghiệm</b> (chưa gửi mail). Mã của bạn: <b style="font-size:20px;letter-spacing:4px">'+OT.dev+'</b></p>':'<p class="note">Hãy kiểm tra hộp thư đến (và cả thư rác). Mã có hiệu lực 10 phút.</p><p class="note" style="background:#eef8f1;border-radius:10px;padding:10px">📌 <b>Không thấy mã?</b> Hãy xem lại địa chỉ Gmail ở trên đã gõ đúng chưa. Nếu gõ sai (hoặc Gmail không tồn tại), mã sẽ không đến được. Bấm “Đổi Gmail” để nhập lại.</p>')+
    '<input id="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••" style="text-align:center;font-size:22px;letter-spacing:8px"><div class="err" id="oerr"></div>'+
    '<button class="btn" id="ob" onclick="checkCode()">Xác nhận →</button><button class="link" id="rs" onclick="resend()"></button><button class="link" onclick="clearInterval(OT.t);render()">← Đổi Gmail</button>';
   OT.cd=30;clearInterval(OT.t);OT.t=setInterval(function(){OT.cd--;cdTick();if(OT.cd<=0)clearInterval(OT.t)},1000);cdTick();
